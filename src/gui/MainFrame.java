@@ -1,0 +1,174 @@
+package gui;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Transferable;
+import java.util.ArrayList;
+
+import javax.swing.JDesktopPane;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+
+import actions.ActionManager;
+import actions.OpenNode;
+import guiWindowListener.MyWindowListener;
+import model.Project;
+import model.Workspace;
+import model.WorkspaceModel;
+import view.DocumentView;
+import view.ProjectView;
+import view.WorkspaceView;
+
+public class MainFrame extends JFrame implements ClipboardOwner{
+	
+	private static MainFrame instance = null;
+	private Tree tree;
+	private WorkspaceModel treeModel;
+	private JDesktopPane desktop;
+	private WorkspaceView workspaceView;
+	private ArrayList<DocumentView> deleteDocView;
+	private ArrayList<ProjectView> closeProject;
+	private ActionManager actionManager;
+	
+	private Clipboard clipboard = new Clipboard("GeRuDok clipboard");
+	
+	private MainFrame() {
+		
+	}
+	
+	private void initialise() {
+		actionManager = new ActionManager();
+		
+		//Toolkit kit = Toolkit.getDefaultToolkit();
+		//Dimension screenSize = kit.getScreenSize();
+		//double width = (screenSize.width)/1.5;
+		//double height = screenSize.height/1.5;
+		//setSize((int)width, (int)height);  
+		
+		setSize(1000,550);
+		setTitle("GeRuDok");
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setLocationRelativeTo(null);
+		
+		deleteDocView = new ArrayList<DocumentView>();
+		closeProject = new ArrayList<ProjectView>();
+		desktop=new JDesktopPane();
+		
+		
+		addWindowListener(new MyWindowListener());
+		
+		JPanel top = new JPanel(new BorderLayout());
+		//top.setPreferredSize(new Dimension(300,30));
+		MyMenu menuBar = new MyMenu(this);
+		MyToolbar toolBar = new MyToolbar();
+		toolBar.setPreferredSize(new Dimension(300,27));
+		top.add(menuBar, BorderLayout.NORTH);
+		top.add(toolBar,BorderLayout.SOUTH);
+		
+        
+		JPanel bottom = new JPanel();
+		bottom.setPreferredSize(new Dimension(300,30));
+		//bottom.setBackground(Color.LIGHT_GRAY);
+		//JLabel label2 = new JLabel("Ovde cemo smestiti nesto sto ce biti u juznom delu projekta");
+		//bottom.add(label2,BorderLayout.CENTER);
+		
+		tree=new Tree();
+		tree.addMouseListener(new OpenNode());
+		treeModel = new WorkspaceModel();
+		tree.setModel(treeModel);
+		JPanel left = new JPanel(new BorderLayout());
+		left.setPreferredSize(new Dimension(200,100));
+		left.add(new JScrollPane(tree));
+
+		//JPanel center = new JPanel(new BorderLayout());
+		//center.setPreferredSize(new Dimension(250,150));
+		workspaceView = new WorkspaceView();
+		workspaceView.setBackground(getBackground());
+		( (Workspace) tree.getModel().getRoot()).addObserver(MainFrame.getInstance().getWorkspaceView());
+		
+		JScrollPane scroll=new JScrollPane(tree);
+		scroll.setMinimumSize(new Dimension(200,150));
+		JSplitPane split=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,scroll,workspaceView);
+		
+		treeModel.addProject(new Project("RECYCLE BIN"));
+
+		add(top,BorderLayout.NORTH);
+		add(split,BorderLayout.CENTER);
+		//add(bottom,BorderLayout.SOUTH);
+		
+		Palette palette = new Palette();
+		add(palette,BorderLayout.EAST);
+		
+		validate();
+	
+		setVisible(true);
+		System.out.println("Izbor editora dvoklikom na PageElement.");
+		
+	}
+	
+	public ActionManager getActionManager() {
+		return actionManager;
+	}
+	public void setActionManager(ActionManager actionManager) {
+		this.actionManager = actionManager;
+	}
+	
+	public void addDeleteDocView(DocumentView view) {
+		this.deleteDocView.add(view);
+	}
+	
+	public void addCloseProjectView(ProjectView view) {
+		this.closeProject.add(view);
+	}
+	
+	public ArrayList<ProjectView> getCloseProject() {
+		return closeProject;
+	}
+	
+	public ArrayList<DocumentView> getDeleteDocView() {
+		return deleteDocView;
+	}
+	public static MainFrame getInstance() {
+		if(instance == null) {
+			instance = new MainFrame();
+			instance.initialise();
+		}
+		return instance;
+	}
+	
+	public Tree getTree() {
+		return tree;
+	}
+	
+	public WorkspaceModel getTreeModel() {
+		return treeModel;
+	}
+	
+	public JDesktopPane getDesktop() {
+		return desktop;
+	}
+	public void setDesktop(JDesktopPane desktop) {
+		this.desktop = desktop;
+	}
+	
+	public WorkspaceView getWorkspaceView() {
+		return workspaceView;
+	}
+
+	public void setWorkspaceView(WorkspaceView workspaceView) {
+		this.workspaceView = workspaceView;
+	}
+
+	@Override
+	public void lostOwnership(Clipboard arg0, Transferable arg1) {
+		System.out.println("Lost ownership");
+	}
+
+	public Clipboard getClipboard() {
+		return clipboard;
+	}
+}

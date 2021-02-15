@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+encoding//src/commands/CommandManager.java=UTF-8
+encoding//src/controller/TreeController.java=UTF-8
+encoding//src/state/ResizeState.java=UTF-8
+encoding//src/view/DocumentView.java=UTF-8
+encoding//src/view/ProjectView.java=UTF-8
+encoding//src/view/TreeEditor.java=UTF-8
+encoding//src/view/TreeRenderer.java=UTF-8
